@@ -1,4 +1,4 @@
-# Toward Scientific Integrity: Identifying and Mitigating the Impact of Article Retraction
+# Toward Scientific Integrity
 ## Citation Classification and Implicit Dependencies Analysis
 
 This repository contains code and resources for analyzing retractions. The primary focus is to identify early sign of retractions. 
