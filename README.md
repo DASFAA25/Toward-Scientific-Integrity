@@ -1,7 +1,7 @@
 # Toward Scientific Integrity: Identifying and Mitigating the Impact of Article Retraction
 # Citation Classification and Implicit Dependencies Analysis
 
-This repository contains code and resources for analyzing citation dependencies in scientific literature. The primary focus is on identifying Concerning Citations (CCs) and Non-Concerning Citations (NCCs) using both traditional machine learning methods and advanced neural models like SciBERT. 
+This repository contains code and resources for analyzing retractions. The primary focus is to identify early sign of retractions. 
 
 ## Table of Contents
 
@@ -20,7 +20,7 @@ This repository contains code and resources for analyzing citation dependencies 
 
 ## Overview
 
-The project aims to explore the implicit dependencies in scientific citations and classify them into two categories: Concerning Citations (CCs) and Non-Concerning Citations (NCCs). The analysis involves text embedding, cosine similarity computations, and classification using both conventional machine learning models and SciBERT.
+The project aims to explore the concerning citations and implicit dependencies in scientific literature. The analysis involves text embedding, cosine similarity computations, and classification using both conventional machine learning models and SciBERT.
 
 ## Dataset
 
@@ -65,7 +65,7 @@ Fine-tunes the SciBERT model using unlabeled citation data, predicts labels for 
 
 
 Install the required packages (see Requirements section below).
-Run the desired Python scripts to perform analysis or classification:
+Run the desired Python scripts to perform respective task:
 
 python ImplicitDependencies_1.py
 python ImplicitDependencies_2.py
@@ -73,16 +73,16 @@ python Classification_ConventionalModels.py
 python Classification_SciBert.py
 python fine-tuning.py
 
-Requirements
+## Requirements
 To run the code in this repository, you will need to install the following packages:
 
-pandas
-numpy
-scikit-learn
-transformers
-torch
-seaborn
-matplotlib
+- **pandas
+- **numpy
+- **scikit-learn
+- **transformers
+- **torch
+- **seaborn
+- **matplotlib
 
 ```bash
 pip install pandas numpy scikit-learn transformers torch seaborn matplotlib
