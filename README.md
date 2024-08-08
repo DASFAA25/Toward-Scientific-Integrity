@@ -84,5 +84,6 @@ torch
 seaborn
 matplotlib
 
+```bash
 pip install pandas numpy scikit-learn transformers torch seaborn matplotlib
 
