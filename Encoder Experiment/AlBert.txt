@@ -1,0 +1,93 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+import torch
+from torch.utils.data import DataLoader, Dataset
+from transformers import AlbertTokenizer, AlbertForSequenceClassification, AdamW
+
+# Load your CSV file with semicolon as separator
+data = pd.read_csv('CCNC.csv', sep=';')
+
+# Convert labels from 'CC' and 'NC' to numerical values
+data['label'] = data['label'].map({'CC': 1, 'NC': 0})  # 1 for CC, 0 for NC
+
+# Split the dataset into training and test sets
+train_texts, test_texts, train_labels, test_labels = train_test_split(
+    data['citation'].tolist(),
+    data['label'].tolist(),
+    test_size=0.2,
+    random_state=42
+)
+
+# Initialize the ALBERT tokenizer
+tokenizer = AlbertTokenizer.from_pretrained('albert-base-v2')
+
+
+# Create a custom Dataset class
+class CitationDataset(Dataset):
+    def __init__(self, texts, labels):
+        self.texts = texts
+        self.labels = labels
+
+    def __len__(self):
+        return len(self.labels)
+
+    def __getitem__(self, idx):
+        encoding = tokenizer(self.texts[idx], padding='max_length', truncation=True, max_length=512,
+                             return_tensors='pt')
+        label = torch.tensor(self.labels[idx], dtype=torch.long)
+
+        return {
+            'input_ids': encoding['input_ids'].flatten(),
+            'attention_mask': encoding['attention_mask'].flatten(),
+            'labels': label
+        }
+
+
+# Create DataLoader for training and testing sets
+train_dataset = CitationDataset(train_texts, train_labels)
+test_dataset = CitationDataset(test_texts, test_labels)
+
+train_loader = DataLoader(train_dataset, batch_size=4, shuffle=True)  # Adjust batch size as needed
+test_loader = DataLoader(test_dataset, batch_size=4)
+
+# Initialize the ALBERT model for sequence classification
+model = AlbertForSequenceClassification.from_pretrained('albert-base-v2')
+
+# Define the optimizer
+optimizer = AdamW(model.parameters(), lr=1e-5)
+
+# Training the model
+model.train()
+for epoch in range(3):  # You can increase the number of epochs
+    for batch in train_loader:
+        optimizer.zero_grad()
+        input_ids = batch['input_ids']
+        attention_mask = batch['attention_mask']
+        labels = batch['labels']
+
+        outputs = model(input_ids, attention_mask=attention_mask, labels=labels)
+        loss = outputs.loss
+        loss.backward()
+        optimizer.step()
+    print(f'Epoch {epoch + 1} completed')
+
+# Evaluation
+model.eval()
+predictions, true_labels = [], []
+
+with torch.no_grad():
+    for batch in test_loader:
+        input_ids = batch['input_ids']
+        attention_mask = batch['attention_mask']
+
+        # Generate predictions
+        outputs = model(input_ids, attention_mask=attention_mask)
+        logits = outputs.logits
+        preds = torch.argmax(logits, dim=1).tolist()
+
+        predictions.extend(preds)
+        true_labels.extend(batch['labels'].tolist())
+
+# Print classification report
+print(classification_report(true_labels, predictions, target_names=['NC', 'CC']))
